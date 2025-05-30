@@ -23,7 +23,23 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "pygame-ce" },
+    { name = "tiny-shmup" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pygame-ce" }]
+requires-dist = [
+    { name = "pygame-ce" },
+    { name = "tiny-shmup" },
+]
+
+[[package]]
+name = "tiny-shmup"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pygame-ce" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c3/07/b540d92f79744c4a425305682adbb95bf76b5ffcefb32a85a35a724f300d/tiny_shmup-0.1.0.tar.gz", hash = "sha256:7c93f58cdcd95a00387911ed8c3c392153724d39429a6b4e33969f4e2584f01f", size = 2178, upload-time = "2025-05-30T21:13:43.69Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2d/41/ce4cae802b82ceccfdf9fd3cc172c2072d7e8ab634a0f546b78d626eeeae/tiny_shmup-0.1.0-py3-none-any.whl", hash = "sha256:1de27015ae24cc116b711228dee47f2ce289c8a894092aa01cac5b6feb3f7665", size = 2597, upload-time = "2025-05-30T21:13:42.198Z" },
+]

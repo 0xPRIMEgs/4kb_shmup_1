@@ -1,7 +1,10 @@
 import pygame, math
+from tiny_shmup import tiny_shmup
 #4kb shmup - William Starkovich
 
 pygame.init()
+tiny_shmup = tiny_shmup()
+
 screen = pygame.display.set_mode((1920, 1080), pygame.NOFRAME)
 clock = pygame.time.Clock()
 dt = 0
@@ -13,15 +16,14 @@ player_foc = False
 boss_hp = 10
 next_wave = False
 
-def target(ox,oy,tv):
-    v = pygame.Vector2(tv.x - ox, tv.y - oy).normalize()
-    return [v.x, v.y]
+
 
 wave = 0
 enemies = [
     [
-        [1500, 250, 0, 2, 0, 1],
-        [1500, 750, 0, 2, 0, 1],
+        [1500, 250, 1, 2, 0, 1],
+        [1500, 500, 0, 2, 0, 1],
+        [1500, 750, 1, 2, 0, 1],
     ],
     [
         [1500, 300, 0, 2, 0, 1],
@@ -38,7 +40,10 @@ bullets = []
 
 def fire_bullets(ox, oy, v, depth):
     for d in range(depth):
-        bullets.append([ox, oy, v[0] + ((v[0] * 0.1) * d), v[1] + ((v[1] * 0.1) * d), 100])
+        bullets.append([ox, oy, v[0] + ((v[0] * 0.1) * d), v[1] + ((v[1] * 0.1) * d), 100,0])
+
+def fire_bullet(ox, oy, v):
+    bullets.append([ox, oy, v[0], v[1], 100,1])
 
 while True:
     for event in pygame.event.get():
@@ -46,35 +51,35 @@ while True:
 
     screen.fill("black")
 
-    pygame.draw.rect(screen, "blue", (player_pos.x + 36, player_pos.y - 16, 2000, 32))
-    pygame.draw.rect(screen, "white", (player_pos.x + 48, player_pos.y - 13, 2000, 26))
-
+    tiny_shmup.draw_beam(screen, "blue", (player_pos.x + 36, player_pos.y), 32, 6)
+    
     line_y = 36
     if player_foc:
         line_y = 16
-        
-    pygame.draw.line(screen, "blue", (player_pos.x +40, player_pos.y - line_y), (1920, player_pos.y - line_y), 3)
-    pygame.draw.line(screen, "blue", (player_pos.x +40, player_pos.y + line_y), (1920, player_pos.y + line_y), 3)
 
-    pygame.draw.circle(screen, "cyan", player_pos, 24)
-    pygame.draw.circle(screen, "blue", player_pos, player_hitbox_size * 0.5)
+    tiny_shmup.draw_beam(screen, "blue",  (player_pos.x +40, player_pos.y - line_y), 16, 6)
+    tiny_shmup.draw_beam(screen, "blue",  (player_pos.x +40, player_pos.y + line_y), 16, 6)
+    
 
+    tiny_shmup.draw_player(screen, "cyan", player_pos, 64)
+    
     if not player_foc:
         line_y = 32
 
-    pygame.draw.circle(screen, "blue", (player_pos.x + 32, player_pos.y - line_y), 16)
-    pygame.draw.circle(screen, "white", (player_pos.x + 32, player_pos.y - line_y), 12)
-
-    pygame.draw.circle(screen, "blue", (player_pos.x + 32, player_pos.y + line_y), 16)
-    pygame.draw.circle(screen, "white", (player_pos.x + 32, player_pos.y + line_y), 12)
-
+    tiny_shmup.draw_bit(screen, "cyan", (player_pos.x + 32, player_pos.y - line_y), 32)
+    tiny_shmup.draw_bit(screen, "cyan", (player_pos.x + 32, player_pos.y + line_y), 32)
   
     for e in enemies[wave]:
-        pygame.draw.circle(screen, "red", (e[0], e[1]), 32)
+        tiny_shmup.draw_enemy(screen, "red", (e[0], e[1]), 32)
         e[5] -= dt
         if e[5] <= 0:
-            fire_bullets(e[0], e[1], target(e[0],e[1],player_pos), 4)
-            e[5] = 1
+            if e[2] == 0: 
+                fire_bullets(e[0], e[1], tiny_shmup.towards((e[0],e[1]),(player_pos.x, player_pos.y)), 4)
+                e[5] = 3
+            elif e[2] == 1:
+                fire_bullet(e[0], e[1], tiny_shmup.towards((e[0],e[1]),(player_pos.x, player_pos.y)))
+                e[5] = 1
+            
 
     if next_wave:
         boss_hp = 10
@@ -92,8 +97,10 @@ while True:
             if b[0] >= player_pos.x - player_hitbox_size and b[0] <= player_pos.x + player_hitbox_size and b[1] >= player_pos.y - player_hitbox_size and b[1] <= player_pos.y + player_hitbox_size:
                 a = c #you died
 
-            pygame.draw.circle(screen, "green", (b[0], b[1]), 8)
-            pygame.draw.circle(screen, "white", (b[0], b[1]), 5)
+            bc = "pink"
+            if(b[5] == 0):
+                bc = "green"
+            tiny_shmup.draw_bullet(screen, bc, (b[0], b[1]), 8)
 
     boss_a = 300
     boss_b = 700
